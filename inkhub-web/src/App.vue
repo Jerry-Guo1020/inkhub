@@ -9,11 +9,10 @@ import 'vue-sonner/style.css'
 <template>
   <SidebarProvider>
     <AppSidebar />
-    <main>
+    <main class="w-full p-6">
       <SidebarTrigger />
-      <slot />
+      <router-view></router-view>
     </main>
-    <router-view></router-view>
   </SidebarProvider>
   <Toaster richColors />
 </template>
