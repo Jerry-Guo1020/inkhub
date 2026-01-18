@@ -1,0 +1,243 @@
+<template>
+    <div class="container">
+        <h1 class="text-2xl mt-10 mb-5">To-Do List 控制台</h1>
+        <div class="mb-5">你可以在这里编辑你的备忘录，然后一键传到水墨屏中</div>
+        <div ref="canvas" class="canvas">
+            <h1 class="main-title">To-Do List</h1>
+
+            <div class="column-container">
+                <div v-for="(todo, todoIndex) in todo" :key="todo.title" class="column-card">
+                    <div class="column-header">{{ todo.title }}</div>
+                    <div class="task-list">
+                        <div v-for="(task, taskIndex) in todo.taskList" class="task-item">
+                            <span class="task-num">{{ taskIndex + 1 }} .</span>
+                            {{ task }}
+                        </div>
+                    </div>
+                </div>
+
+                <div v-for="(done, doneIndex) in done" :key="done.title" class="column-card">
+                    <div class="column-header">{{ done.title }}</div>
+
+                    <div class="task-list">
+                        <div v-for="(task, taskIndex) in done.taskList" :key="taskIndex" class="task-item-done">
+                            <span class="task-num">{{ taskIndex + 1 }} .</span>
+                            {{ task }}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-add" @click="handleAddTask">
+                添加新任务
+            </button>
+            <button class="btn-export" @click="handleExportImage" :disabled="isGenerating">
+                {{ isGenerating ? '生成中...' : '导出为图片' }}
+            </button>
+        </div>
+
+        <CardIndex>fjkfsak</CardIndex>
+    </div>
+</template>
+
+<script setup>
+import CardIndex from '@/components/card/cardIndex.vue';
+import html2canvas from 'html2canvas'
+import { reactive, ref } from 'vue';
+
+// 状态管理
+const isGenerating = ref(false);
+
+// 使用ref来绑定 document.getElementById()
+const canvas = ref(null)
+
+// 列表
+const todo = reactive([
+    {
+        title: "To Do",
+        taskList: [
+            "吃饭",
+            "睡觉",
+            "刷抖音"
+        ]
+    }
+])
+
+// 列表
+const done = reactive([
+    {
+        title: "Done",
+        taskList: [
+            "吃饭",
+            "睡觉",
+            "刷抖音"
+        ]
+    }
+])
+
+// 实行导出为照片的任务
+
+// 1、添加任务按钮
+const handleAddTask = () => {
+    const text = prompt("请输入你需要添加的任务")
+    if (text) {
+        todo[0].taskList.push(text)
+    }
+}
+
+// 2、导出为照片按钮
+const handleExportImage = async () => {
+    const element = canvas.value
+    if (!element) {
+        alert("未找到dom元素")
+        return
+    }
+
+    isGenerating.value = true
+
+    try {
+        const canva = await html2canvas(element, {
+            scale: 2, // 提高清晰度
+            backgroundColor: "#E6E3D8", // 确保背景色
+            useCORS: true
+        });
+
+        const imgData = canva.toDataURL('image/png')
+        const link = document.createElement("a")
+        link.download = "todoList.png"
+        link.href = imgData;
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+    } catch (error) {
+        console.error("生成失败:", error);
+        alert("生成图片失败，请查看控制台");
+    } finally {
+        isGenerating.value = false;
+    }
+
+}
+
+
+
+</script>
+
+<style scoped>
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.canvas {
+    width: 800px;
+    background-color: #E6E3D8;
+    padding: 40px 50px;
+    box-sizing: border-box;
+    color: #333;
+    border-radius: 4px;
+}
+
+.main-title {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 30px;
+    color: #222;
+}
+
+.column-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+
+}
+
+.column-card {
+    flex: 1;
+    border: 1px solid #888;
+    border-radius: 12px;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    min-height: 400px;
+}
+
+.column-header {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 15px 15px 5px 15px;
+    margin-bottom: 5px;
+}
+
+.task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.task-item {
+    padding: 12px 15px;
+    border-top: 1px solid #999;
+    font-size: 15px;
+    line-height: 1.4;
+    color: #444;
+    display: flex;
+}
+
+.task-item-done {
+    padding: 12px 15px;
+    border-top: 1px solid #999;
+    font-size: 15px;
+    line-height: 1.4;
+    color: #444;
+    display: flex;
+}
+
+.task-num {
+    margin-right: 8px;
+    font-weight: 500;
+}
+
+.controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+.btn-add {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-export {
+    background-color: #2196F3;
+    color: white;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+</style>
