@@ -14,19 +14,19 @@ import {
 // Menu items.
 const items = [
   {
-    title: 'Home',
+    title: '主页',
     url: '#',
     icon: Home,
   },
   {
-    title: 'Inbox',
+    title: 'To Do List',
     url: '#',
-    icon: Inbox,
+    icon: Calendar,
   },
   {
     title: 'Calendar',
     url: '#',
-    icon: Calendar,
+    icon: Inbox,
   },
   {
     title: 'Search',
@@ -45,7 +45,8 @@ const items = [
   <Sidebar>
     <SidebarContent>
       <SidebarGroup>
-        <SidebarGroupLabel>Application</SidebarGroupLabel>
+        <SidebarGroupLabel class="text-xl m-5 inline-flex align-center cursor-pointer">
+          <img src="/logo.png" class="m-5 w-10 h-10"></img>InkHub</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem v-for="item in items" :key="item.title">

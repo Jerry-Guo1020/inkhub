@@ -36,21 +36,28 @@
                 添加新任务
             </button>
             <button class="btn-export" @click="handleExportImage" :disabled="isGenerating">
-                {{ isGenerating ? '生成中...' : '导出为图片' }}
+                {{ isGenerating ? '生成中...' : '一键传入水墨屏' }}
             </button>
         </div>
 
-        <CardIndex>fjkfsak</CardIndex>
+        <!-- 添加任务弹窗 -->
+        <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
+            <div class="modal-content" @click.stop>
+                <AddListCard @add-task="addTask" @close="closeModal" />
+            </div>
+        </div>
     </div>
 </template>
 
 <script setup>
-import CardIndex from '@/components/card/cardIndex.vue';
+import AddListCard from '@/components/todoList/addListCard/addListCard.vue'
 import html2canvas from 'html2canvas'
+import { toast } from 'vue-sonner'
 import { reactive, ref } from 'vue';
 
 // 状态管理
 const isGenerating = ref(false);
+const isModalOpen = ref(false); // 控制弹窗显示
 
 // 使用ref来绑定 document.getElementById()
 const canvas = ref(null)
@@ -60,7 +67,7 @@ const todo = reactive([
     {
         title: "To Do",
         taskList: [
-            "吃饭",
+            "吃饭吃饭吃饭吃饭吃饭吃饭吃饭吃饭吃饭",
             "睡觉",
             "刷抖音"
         ]
@@ -83,11 +90,17 @@ const done = reactive([
 
 // 1、添加任务按钮
 const handleAddTask = () => {
-    const text = prompt("请输入你需要添加的任务")
-    if (text) {
-        todo[0].taskList.push(text)
-    }
-}
+    isModalOpen.value = true;
+};
+
+const addTask = (taskData) => {
+    todo[0].taskList.push(taskData.title);
+    isModalOpen.value = false;
+};
+
+const closeModal = () => {
+    isModalOpen.value = false;
+};
 
 // 2、导出为照片按钮
 const handleExportImage = async () => {
@@ -113,9 +126,16 @@ const handleExportImage = async () => {
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
+        toast.success('图片导出添加成功！', {
+            description: `已导出图片: todoList.png`,
+            position: 'bottom-right',
+        })
     } catch (error) {
         console.error("生成失败:", error);
-        alert("生成图片失败，请查看控制台");
+        toast.error('图片导出失败！', {
+            description: error,
+            position: 'bottom-right',
+        })
     } finally {
         isGenerating.value = false;
     }
@@ -239,5 +259,55 @@ button:hover {
 button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+}
+
+/* 弹窗样式 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    border-radius: 12px;
+    position: relative;
+    min-width: 500px;
+    max-width: 600px;
+    width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.close-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #666;
+    z-index: 1;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.close-button:hover {
+    color: #333;
+    background-color: rgba(0, 0, 0, 0.1);
 }
 </style>

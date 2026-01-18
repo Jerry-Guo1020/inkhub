@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import TodoList from '../views/todoList/todoList.vue'
+import TodoListCard from '../views/todoList/todoListCard.vue'
 
 const routes = [
-  { path: '/', component: TodoList},
+  { path: '/', component: TodoListCard},
+  
 ]
 
 const router = createRouter({
