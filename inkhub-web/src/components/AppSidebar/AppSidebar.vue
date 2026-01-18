@@ -15,12 +15,12 @@ import {
 const items = [
   {
     title: '主页',
-    url: '#',
+    url: '/',
     icon: Home,
   },
   {
     title: 'To Do List',
-    url: '#',
+    url: '/todolist',
     icon: Calendar,
   },
   {

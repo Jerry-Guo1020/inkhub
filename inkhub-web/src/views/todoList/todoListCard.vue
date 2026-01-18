@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <h1 class="text-2xl mt-10 mb-5">To-Do List 控制台</h1>
+        <h1 class="text-2xl  mb-5">To-Do List 控制台</h1>
         <div class="mb-5">你可以在这里编辑你的备忘录，然后一键传到水墨屏中</div>
         <div ref="canvas" class="canvas">
             <h1 class="main-title">To-Do List</h1>
@@ -46,7 +46,10 @@
                 <AddListCard @add-task="addTask" @close="closeModal" />
             </div>
         </div>
+
     </div>
+    <div>
+    <Home /></div>
 </template>
 
 <script setup>
@@ -54,6 +57,7 @@ import AddListCard from '@/components/todoList/addListCard/addListCard.vue'
 import html2canvas from 'html2canvas'
 import { toast } from 'vue-sonner'
 import { reactive, ref } from 'vue';
+import Home from '../home/home.vue';
 
 // 状态管理
 const isGenerating = ref(false);
