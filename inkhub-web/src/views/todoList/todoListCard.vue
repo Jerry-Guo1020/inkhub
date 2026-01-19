@@ -49,7 +49,8 @@
 
     </div>
     <div>
-    <Home /></div>
+        <Home />
+    </div>
 </template>
 
 <script setup>

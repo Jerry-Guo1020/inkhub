@@ -14,7 +14,7 @@ import {
   getFilteredRowModel,
   useVueTable,
 } from '@tanstack/vue-table'
-import { ArrowUpDown, ChevronDown } from 'lucide-vue-next'
+import { ChevronDown } from 'lucide-vue-next'
 import { valueUpdater } from '@/lib/utils' // 确保你有这个 utils 文件，shadcn 初始化时会自动生成
 
 // 引入 UI 组件
@@ -69,9 +69,9 @@ const table = useVueTable({
     <div class="flex items-center py-4">
       <Input 
         class="max-w-sm" 
-        placeholder="Filter emails..."
-        :model-value="table.getColumn('email')?.getFilterValue() as string"
-        @update:model-value="table.getColumn('email')?.setFilterValue($event)" 
+        placeholder="请输入您需要搜索的内容"
+        :model-value="table.getColumn('task')?.getFilterValue() as string"
+        @update:model-value="table.getColumn('task')?.setFilterValue($event)" 
       />
       
       <DropdownMenu>
@@ -84,7 +84,7 @@ const table = useVueTable({
           <DropdownMenuCheckboxItem
             v-for="column in table.getAllColumns().filter((column) => column.getCanHide())"
             :key="column.id"
-            class="capitalize"
+            class="capitalize "
             :modelValue="column.getIsVisible()"
             @update:modelValue="(value) => column.toggleVisibility(!!value)"
           >
@@ -94,11 +94,11 @@ const table = useVueTable({
       </DropdownMenu>
     </div>
 
-    <div class="border rounded-md">
+    <div class="border rounded-md text-center">
       <Table>
         <TableHeader>
           <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
-            <TableHead v-for="header in headerGroup.headers" :key="header.id">
+            <TableHead v-for="header in headerGroup.headers" :key="header.id" class="text-center">
               <FlexRender 
                 v-if="!header.isPlaceholder" 
                 :render="header.column.columnDef.header"
@@ -114,7 +114,7 @@ const table = useVueTable({
               :key="row.id"
               :data-state="row.getIsSelected() ? 'selected' : undefined"
             >
-              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="text-center">
                 <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
               </TableCell>
             </TableRow>
@@ -132,8 +132,9 @@ const table = useVueTable({
 
     <div class="flex items-center justify-end py-4 space-x-2">
       <div class="flex-1 text-sm text-muted-foreground">
-        {{ table.getFilteredSelectedRowModel().rows.length }} of
-        {{ table.getFilteredRowModel().rows.length }} row(s) selected.
+        已选择内容：
+        {{ table.getFilteredSelectedRowModel().rows.length }} /
+        {{ table.getFilteredRowModel().rows.length }} 
       </div>
       <Button
         variant="outline"
@@ -141,7 +142,7 @@ const table = useVueTable({
         :disabled="!table.getCanPreviousPage()"
         @click="table.previousPage()"
       >
-        Previous
+        上一页
       </Button>
       <Button
         variant="outline"
@@ -149,7 +150,7 @@ const table = useVueTable({
         :disabled="!table.getCanNextPage()"
         @click="table.nextPage()"
       >
-        Next
+        下一页
       </Button>
     </div>
   </div>

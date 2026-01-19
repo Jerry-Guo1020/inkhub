@@ -1,19 +1,18 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { columns, type Payment } from '@/components/payments/columns' // 引入列定义
+import { columns, type Task } from '@/components/payments/columns' // 引入列定义
 import DataTable from '@/components/payments/data-table.vue' // 引入表格组件
 
-const data = ref<Payment[]>([])
+const data = ref<Task[]>([])
 
 // 模拟获取数据
-async function getData(): Promise<Payment[]> {
+async function getData(): Promise<Task[]> {
   // 这里通常是你的 API 请求
   return [
-    { id: '728ed52f', amount: 100, status: 'pending', email: 'm@example.com' },
-    { id: '489e1d42', amount: 125, status: 'processing', email: 'example@gmail.com' },
-    { id: '12345678', amount: 50, status: 'success', email: 'test@gmail.com' },
-    { id: '87654321', amount: 200, status: 'failed', email: 'hello@world.com' },
-    // 你可以多加几条数据测试分页效果
+    { id: '1', task: '完成项目报告', status: 'todo' },
+    { id: '2', task: '准备周会演示', status: 'todo' },
+    { id: '3', task: '回复客户邮件', status: 'done' },
+    { id: '4', task: '修复 Bug #123', status: 'done' },
   ]
 }
 
@@ -24,7 +23,7 @@ onMounted(async () => {
 
 <template>
   <div class="py-10">
-    <h1 class="mb-5 text-2xl font-bold">Payments</h1>
+    <h1 class="mb-5 text-2xl font-bold">待办事项</h1>
     <DataTable :columns="columns" :data="data" />
   </div>
 </template>
