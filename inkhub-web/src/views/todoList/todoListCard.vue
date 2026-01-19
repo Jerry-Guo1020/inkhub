@@ -6,28 +6,25 @@
             <h1 class="main-title">To-Do List</h1>
 
             <div class="column-container">
-                <div v-for="(todo, todoIndex) in todo" :key="todo.title" class="column-card">
-                    <div class="column-header">{{ todo.title }}</div>
+                <div class="column-card">
+                    <div class="column-header">To Do</div>
                     <div class="task-list">
-                        <div v-for="(task, taskIndex) in todo.taskList" class="task-item">
+                        <div v-for="(task, taskIndex) in tasks.filter(t => t.status === 'todo')" :key="task.id" class="task-item">
                             <span class="task-num">{{ taskIndex + 1 }} .</span>
-                            {{ task }}
+                            {{ task.task }}
                         </div>
                     </div>
                 </div>
 
-                <div v-for="(done, doneIndex) in done" :key="done.title" class="column-card">
-                    <div class="column-header">{{ done.title }}</div>
-
+                <div class="column-card">
+                    <div class="column-header">Done</div>
                     <div class="task-list">
-                        <div v-for="(task, taskIndex) in done.taskList" :key="taskIndex" class="task-item-done">
+                        <div v-for="(task, taskIndex) in tasks.filter(t => t.status === 'done')" :key="task.id" class="task-item-done">
                             <span class="task-num">{{ taskIndex + 1 }} .</span>
-                            {{ task }}
+                            {{ task.task }}
                         </div>
                     </div>
-
                 </div>
-
             </div>
         </div>
 
@@ -49,7 +46,7 @@
 
     </div>
     <div>
-        <Home />
+        <Home v-model:data="tasks" />
     </div>
 </template>
 
@@ -67,28 +64,12 @@ const isModalOpen = ref(false); // 控制弹窗显示
 // 使用ref来绑定 document.getElementById()
 const canvas = ref(null)
 
-// 列表
-const todo = reactive([
-    {
-        title: "To Do",
-        taskList: [
-            "吃饭吃饭吃饭吃饭吃饭吃饭吃饭吃饭吃饭",
-            "睡觉",
-            "刷抖音"
-        ]
-    }
-])
-
-// 列表
-const done = reactive([
-    {
-        title: "Done",
-        taskList: [
-            "吃饭",
-            "睡觉",
-            "刷抖音"
-        ]
-    }
+// 统一的任务列表
+let tasks = reactive([
+    { id: '1', task: '完成项目报告', status: 'todo' },
+    { id: '2', task: '准备周会演示', status: 'todo' },
+    { id: '3', task: '回复客户邮件', status: 'done' },
+    { id: '4', task: '修复 Bug #123', status: 'done' },
 ])
 
 // 实行导出为照片的任务
@@ -99,7 +80,7 @@ const handleAddTask = () => {
 };
 
 const addTask = (taskData) => {
-    todo[0].taskList.push(taskData.title);
+    tasks.value.push({ id: String(tasks.value.length + 1), task: taskData.title, status: 'todo' });
     isModalOpen.value = false;
 };
 
@@ -146,8 +127,6 @@ const handleExportImage = async () => {
     }
 
 }
-
-
 
 </script>
 

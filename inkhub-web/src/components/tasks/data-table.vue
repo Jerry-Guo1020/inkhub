@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="TData, TValue">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { 
   ColumnDef, 
   SortingState, 
@@ -15,7 +15,9 @@ import {
   useVueTable,
 } from '@tanstack/vue-table'
 import { ChevronDown } from 'lucide-vue-next'
-import { valueUpdater } from '@/lib/utils' // 确保你有这个 utils 文件，shadcn 初始化时会自动生成
+import { valueUpdater } from '@/lib/utils'
+// import { Draggable } from 'vue-draggable-next'
+import { VueDraggableNext } from 'vue-draggable-next'
 
 // 引入 UI 组件
 import { Input } from '@/components/ui/input'
@@ -33,6 +35,15 @@ const props = defineProps<{
   data: TData[]
 }>()
 
+const emit = defineEmits(['update:data'])
+
+const draggableData = computed({
+  get: () => props.data,
+  set: (value) => {
+    emit('update:data', value)
+  },
+})
+
 // 状态管理
 const sorting = ref<SortingState>([]) // 排序状态
 const columnFilters = ref<ColumnFiltersState>([]) // 过滤状态
@@ -41,7 +52,7 @@ const rowSelection = ref({}) // 行选择状态
 
 // 初始化表格实例
 const table = useVueTable({
-  get data() { return props.data },
+  get data() { return props.data || [] },
   get columns() { return props.columns },
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(), // 分页逻辑
@@ -61,6 +72,15 @@ const table = useVueTable({
     get columnVisibility() { return columnVisibility.value },
     get rowSelection() { return rowSelection.value },
   },
+  getRowId: (row: any) => row.id,
+})
+
+const rowMap = computed(() => {
+  const map = new Map()
+  table.getRowModel().rows.forEach(row => {
+    map.set((row.original as any).id, row)
+  })
+  return map
 })
 </script>
 
@@ -107,25 +127,27 @@ const table = useVueTable({
             </TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
-          <template v-if="table.getRowModel().rows?.length">
-            <TableRow 
-              v-for="row in table.getRowModel().rows" 
-              :key="row.id"
-              :data-state="row.getIsSelected() ? 'selected' : undefined"
-            >
-              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="text-center">
-                <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-              </TableCell>
-            </TableRow>
-          </template>
-          <template v-else>
-            <TableRow>
-              <TableCell :colspan="columns.length" class="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
-          </template>
+        <VueDraggableNext
+          v-model="draggableData"
+          tag="tbody"
+        >
+          <TableRow
+            v-for="task in draggableData"
+            :key="(task as any).id"
+            class="cursor-move"
+            :data-state="rowMap.get((task as any).id)?.getIsSelected() ? 'selected' : undefined"
+          >
+            <TableCell v-for="cell in rowMap.get((task as any).id)?.getVisibleCells()" :key="cell.id" class="text-center">
+              <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+            </TableCell>
+          </TableRow>
+        </VueDraggableNext>
+        <TableBody v-if="!table.getRowModel().rows?.length">
+          <TableRow>
+            <TableCell :colspan="columns.length" class="h-24 text-center">
+              No results.
+            </TableCell>
+          </TableRow>
         </TableBody>
       </Table>
     </div>
