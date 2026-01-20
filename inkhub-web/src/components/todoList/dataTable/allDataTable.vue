@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { columns, type Task } from '@/components/tasks/columns' // 引入列定义
-import TodoTable from '@/components/tasks/todo/todoTable.vue' // 引入 Todo 表格组件
-import DoneTable from '@/components/tasks/done/doneTable.vue' // 引入 Done 表格组件
+import { columns, type Task } from '@/components/todoList/tasks/columns' 
+import TodoTable from '@/components/todoList/tasks/todo/todoTable.vue' 
+import DoneTable from '@/components/todoList/tasks/done/doneTable.vue' 
 import { computed } from 'vue'
 
 const props = defineProps<{

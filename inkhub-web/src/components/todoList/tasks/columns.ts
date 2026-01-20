@@ -27,7 +27,8 @@ export const columns: ColumnDef<Task>[] = [
       return h(
         'div',
         { class: ` inline-block px-3 py-1 border-2 rounded-md  ${colorClass}` },
-        status.toUpperCase()
+        // status.toUpperCase()这个是直接让todo和done全大写
+        status === 'todo' ? "待办" : "已完成"    // 这样就成功改了变成中文自定义
       )
     },
   },

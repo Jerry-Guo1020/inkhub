@@ -15,11 +15,6 @@ import {
   useVueTable,
 } from '@tanstack/vue-table'
 
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from '@/components/ui/native-select'
-
 import { ChevronDown } from 'lucide-vue-next'
 import { valueUpdater } from '@/lib/utils'
 import { VueDraggableNext } from 'vue-draggable-next'
@@ -171,30 +166,6 @@ const rowMap = computed(() => {
           </TableRow>
         </TableBody>
       </Table>
-    </div>
-
-    <div class="flex items-center justify-end py-4 space-x-2">
-      <div class="flex-1 text-sm text-muted-foreground">
-        已选择内容：
-        {{ table.getFilteredSelectedRowModel().rows.length }} /
-        {{ table.getFilteredRowModel().rows.length }} 
-      </div>
-      <Button
-        variant="outline"
-        size="sm"
-        :disabled="!table.getCanPreviousPage()"
-        @click="table.previousPage()"
-      >
-        上一页
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        :disabled="!table.getCanNextPage()"
-        @click="table.nextPage()"
-      >
-        下一页
-      </Button>
     </div>
   </div>
 </template>
