@@ -35,20 +35,25 @@ export const columns: ColumnDef<Task>[] = [
   {
     id: 'actions',
     header: '操作',
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       const task = row.original
+      const meta = table.options.meta as any
+
       return h('div', { class: 'flex gap-2 justify-center' }, [
         h(Button, { variant: 'outline', size: 'sm', 
-          onClick: () => 
+          onClick: () => {
+            meta.deleteTask(task.id)
             toast.success('删除成功！', {
             description: `成功删除此内容`,
             position: 'bottom-right',
-        })}, '删除'),
-        h(Button, { variant: 'default', size: 'sm', onClick: () =>  
-            toast.success('成功执行该操作！', {
-            description: `已成功将此内容放入done行列！`,
+        })}}, '删除'),
+        h(Button, { variant: 'default', size: 'sm', onClick: () => {
+            const newStatus = task.status === 'todo' ? 'done' : 'todo'
+            meta.updateStatus(task.id, newStatus)
+            toast.success('操作成功！', {
+            description: `已成功更新任务状态！`,
             position: 'bottom-right',
-        }) }, '已完成')
+        }) }}, task.status === 'todo' ? '已完成' : '撤销完成')
       ])
     },
   },

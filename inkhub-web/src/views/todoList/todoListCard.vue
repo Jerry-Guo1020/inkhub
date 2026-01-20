@@ -46,7 +46,7 @@
 
     </div>
     <div>
-        <Home v-model:data="tasks" />
+        <AllDataTable v-model:data="tasks" />
     </div>
 </template>
 
@@ -55,7 +55,7 @@ import AddListCard from '@/components/todoList/addListCard/addListCard.vue'
 import html2canvas from 'html2canvas'
 import { toast } from 'vue-sonner'
 import { reactive, ref } from 'vue';
-import Home from '../home/home.vue';
+import AllDataTable from '@/components/todoList/dataTable/allDataTable.vue';
 
 // 状态管理
 const isGenerating = ref(false);
@@ -65,7 +65,7 @@ const isModalOpen = ref(false); // 控制弹窗显示
 const canvas = ref(null)
 
 // 统一的任务列表
-let tasks = reactive([
+const tasks = ref([
     { id: '1', task: '完成项目报告', status: 'todo' },
     { id: '2', task: '准备周会演示', status: 'todo' },
     { id: '3', task: '回复客户邮件', status: 'done' },
@@ -80,7 +80,7 @@ const handleAddTask = () => {
 };
 
 const addTask = (taskData) => {
-    tasks.value.push({ id: String(tasks.value.length + 1), task: taskData.title, status: 'todo' });
+    tasks.value.push({ id: String(Date.now()), task: taskData.title, status: 'todo' });
     isModalOpen.value = false;
 };
 

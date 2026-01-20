@@ -14,10 +14,16 @@ import {
   getFilteredRowModel,
   useVueTable,
 } from '@tanstack/vue-table'
+
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from '@/components/ui/native-select'
+
 import { ChevronDown } from 'lucide-vue-next'
 import { valueUpdater } from '@/lib/utils'
-// import { Draggable } from 'vue-draggable-next'
 import { VueDraggableNext } from 'vue-draggable-next'
+
 
 // 引入 UI 组件
 import { Input } from '@/components/ui/input'
@@ -52,7 +58,7 @@ const rowSelection = ref({}) // 行选择状态
 
 // 初始化表格实例
 const table = useVueTable({
-  get data() { return props.data || [] },
+  get data() { return draggableData.value || [] },
   get columns() { return props.columns },
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(), // 分页逻辑
@@ -73,6 +79,16 @@ const table = useVueTable({
     get rowSelection() { return rowSelection.value },
   },
   getRowId: (row: any) => row.id,
+  meta: {
+    deleteTask: (id: string) => {
+      draggableData.value = draggableData.value.filter((t: any) => t.id !== id)
+    },
+    updateStatus: (id: string, status: 'todo' | 'done') => {
+      draggableData.value = draggableData.value.map((t: any) => 
+        t.id === id ? { ...t, status } : t
+      )
+    }
+  }
 })
 
 const rowMap = computed(() => {
@@ -97,7 +113,7 @@ const rowMap = computed(() => {
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
           <Button variant="outline" class="ml-auto">
-            Columns <ChevronDown class="w-4 h-4 ml-2" />
+            更多 <ChevronDown class="w-4 h-4 ml-2" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
@@ -118,19 +134,24 @@ const rowMap = computed(() => {
       <Table>
         <TableHeader>
           <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
+            
             <TableHead v-for="header in headerGroup.headers" :key="header.id" class="text-center">
               <FlexRender 
                 v-if="!header.isPlaceholder" 
                 :render="header.column.columnDef.header"
                 :props="header.getContext()" 
               />
+              
             </TableHead>
+            
           </TableRow>
+          
         </TableHeader>
         <VueDraggableNext
           v-model="draggableData"
           tag="tbody"
         >
+        
           <TableRow
             v-for="task in draggableData"
             :key="(task as any).id"
