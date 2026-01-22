@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
 });
 
 // 4. 测试数据库连接的路由
-app.get('/test-db', (req, res) => {
+app.get('/inkhub_database', (req, res) => {
     pool.query('SELECT NOW() as now', (err, results) => {
         if (err) {
             console.error('数据库连接失败:', err);
