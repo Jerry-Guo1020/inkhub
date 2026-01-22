@@ -18,7 +18,7 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-// 3. 基础路由
+// 3.基础路由
 app.get('/', (req, res) => {
     res.send('InkHub Backend is Running!');
 });
