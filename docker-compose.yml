@@ -1,54 +1,52 @@
-# 以下数据库设置的密码账号只是演示参考实验用的，可以根据自己的需求进行修改哦
-
 version: '3.8'
 
 services:
-
-# 数据库配置
+  # --- 服务 1: 数据库 ---
   db:
-  image: mysql:8.0
-  contanier_name: inkhub_db
-  restart: always
-  environment:
-      MYSQL_ROOT_PASSWORD: root_password  # Root 密码
-      MYSQL_DATABASE: inkhub_database     # 默认创建的库名
-      MYSQL_USER: inkhub_user             # 给后端用的账号
-      MYSQL_PASSWORD: inkhub_password     # 给后端用的密码
-  volumes:
-      - ./database_data:/var/lib/mysql    # 【重要】数据持久化，重启不丢数据
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql # 初始建表脚本
-  ports:
-    - "3306:3306"  # 暴露给宿主机，方便你用 Navicat 连接查看
-  networks:
-    - inkhub_net
-  # 解决 MySQL 8 加密方式可能导致的连接问题
-  command: --default-authentication-plugin=mysql_native_password
+    image: mysql:5.7
+    container_name: inkhub_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: inkhub_database
+      MYSQL_USER: inkhub_user
+      MYSQL_PASSWORD: inkhub_password
+    volumes:
+      - ./database_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "33060:3306"
+    networks:
+      - inkhub_net
+    deploy:
+      resources:
+        limits:
+          memory: 512M
 
-# node.js和 Python配置
-# node.js的主要作用是管理好那个备忘录的增删改查
-# Python的作用是弄主页还有天气的布局方式，因为不同于备忘录的实现方式是网页转图片然后传送过去的
-
-server:
-  bulid: ./server    # 通过指向server来构造镜像
-  container_name: inkhub_server
-  restart: always
+  # --- 服务 2: 后端 ---
+  server:
+    build: ./server
+    container_name: inkhub_server
+    restart: always
     depends_on:
-      - db  # 等数据库容器起来了再启动
-  environment:
-    # 这里的 host 必须填上面的服务名 'db'
-    DB_HOST: db
-    DB_USER: inkhub_user
-    DB_PASS: inkhub_password
-    DB_NAME: inkhub_database
-    DB_PORT: 3306
-    PORT: 3000
-  ports:
-    - "3000:3000" # API 接口端口
-  volumes:
-    - ./server:/app             # 代码映射：你在电脑改代码，容器里立即生效
-    - /app/node_modules         # 排除 node_modules，防止系统冲突
-  networks:
-    - inkhub_net
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: inkhub_user
+      DB_PASS: inkhub_password
+      DB_NAME: inkhub_database
+      DB_PORT: 3306
+      PORT: 3000
+    ports:
+      - "30000:3000"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    networks:
+      - inkhub_net
+    command: sh -c "npm install && npx nodemon index.js"
 
+# --- 网络定义 
 networks:
   inkhub_net:
+    driver: bridge
