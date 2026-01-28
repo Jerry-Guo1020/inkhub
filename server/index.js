@@ -1,7 +1,10 @@
 const express = require('express');
 const mysql = require('mysql2');
+const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3000;
+
+app.use(cors());
 
 // 1. 打印一下，证明代码开始跑了
 console.log("正在尝试启动 InkHub 后端...");
