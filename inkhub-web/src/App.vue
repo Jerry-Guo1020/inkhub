@@ -6,7 +6,6 @@ import { Toaster } from '@/components/ui/sonner'
 import 'vue-sonner/style.css'
 import { SERVER_URL } from "./config/config"
 import ky from 'ky'
-import { isHTTPError } from 'ky';
 
 const isConnected = ref(false)
 const isLoading = ref(true)

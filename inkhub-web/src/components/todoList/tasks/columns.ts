@@ -47,14 +47,14 @@ export const columns: ColumnDef<Task>[] = [
             toast.success('删除成功！', {
             description: `成功删除此内容`,
             position: 'bottom-right',
-        })}}, '删除'),
+        })}}, { default: () => '删除' }),
         h(Button, { variant: 'default', size: 'sm', onClick: () => {
             const newStatus = task.status === 'todo' ? 'done' : 'todo'
             meta.updateStatus(task.id, newStatus)
             toast.success('操作成功！', {
             description: `已成功更新任务状态！`,
             position: 'bottom-right',
-        }) }}, task.status === 'todo' ? '已完成' : '撤销完成')
+        }) }}, { default: () => task.status === 'todo' ? '已完成' : '撤销完成' })
       ])
     },
   },
