@@ -1,0 +1,31 @@
+const db = require('../config/db');
+
+// 获取所有的任务
+exports.getAllTasks = async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM todos');
+        res.json(rows);
+    } catch (err) {
+        console.error('获取任务失败:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+}
+
+// 添加任务
+exports.createTodo = async (req, res) => {
+    try{
+        const { task } = req.body;
+        if (!task) {
+            return res.status(400).json({ error: '任务内容不能为空' });
+        }
+        const [result] = await db.query('INSERT INTO todos (task, status) VALUES (?, ?)', [task, 'todo'] );
+        res.json({
+            id: result.insertId,
+            task,
+            status: 'todo'
+        })
+    } catch (err) {
+        console.error('添加任务失败:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+}
