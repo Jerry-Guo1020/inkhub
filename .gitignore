@@ -1,2 +1,4 @@
 database_data
 .vscode
+.env.local
+.env.*.local
