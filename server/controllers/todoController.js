@@ -45,3 +45,24 @@ exports.deleteTodo = async (req, res) => {
 }
 
 // 更新任务状态
+exports.updateTodoStatus = async (req, res) => {
+    try {
+        const {id} = req.params
+        const {status} = req.body
+        if(!['todo', 'done'].includes(status)) {
+            return res.status(400).json({error: "状态无效"})
+        }
+        const [result] = await db.query('UPDATE todos SET status = ? WHERE id = ?', [status, id])
+        if (result.affectedRows === 0) {
+            return res.status(404).json({error: "任务不存在"})
+        } else {
+            res.json({message: "状态更新成功"})
+        }
+
+    } catch (err) {
+        console.error("有问题", err)
+        res.status(500).json({
+            error: err.message
+        })
+    }
+}
