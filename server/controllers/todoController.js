@@ -29,3 +29,19 @@ exports.createTodo = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 }
+
+// 删除任务
+exports.deleteTodo = async (req, res) => {
+    try {
+        const [raws] = await db.query('DELETE FROM todos WHERE id = ? ', [req.params.id]);
+        if (raws.affectedRows === 0) {
+            return res.status(404).json({ error: '任务不存在' });
+        }
+        res.json({ message: '任务删除成功' });
+    } catch (err) {
+        console.error('删除任务失败:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+}
+
+// 更新任务状态
