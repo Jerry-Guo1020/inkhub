@@ -1,3 +1,19 @@
+<template>
+  <div class="py-10 space-y-10">
+    <!-- Todo 部分 -->
+    <div>
+      <h2 class="mb-4 text-xl font-bold text-red-500">待办事项 (To Do)</h2>
+      <TodoTable :columns="columns" v-model:data="todoData" />
+    </div>
+
+    <!-- Done 部分 -->
+    <div>
+      <h2 class="mb-4 text-xl font-bold text-green-500">已完成 (Done)</h2>
+      <DoneTable :columns="columns" v-model:data="doneData" />
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { columns, type Task } from '@/components/todoList/tasks/columns' 
 import TodoTable from '@/components/todoList/tasks/todo/todoTable.vue' 
@@ -31,19 +47,3 @@ const doneData = computed({
   }
 })
 </script>
-
-<template>
-  <div class="py-10 space-y-10">
-    <!-- Todo 部分 -->
-    <div>
-      <h2 class="mb-4 text-xl font-bold text-red-500">待办事项 (To Do)</h2>
-      <TodoTable :columns="columns" v-model:data="todoData" />
-    </div>
-
-    <!-- Done 部分 -->
-    <div>
-      <h2 class="mb-4 text-xl font-bold text-green-500">已完成 (Done)</h2>
-      <DoneTable :columns="columns" v-model:data="doneData" />
-    </div>
-  </div>
-</template>

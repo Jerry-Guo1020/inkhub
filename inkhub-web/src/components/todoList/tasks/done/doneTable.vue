@@ -31,6 +31,11 @@ import {
   DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
+import ky from 'ky'
+import { SERVER_URL } from '@/config/config'
+import { toast } from 'vue-sonner'
+
+
 // 接收父组件传来的数据
 const props = defineProps<{
   columns: ColumnDef<TData, TValue>[]
@@ -76,13 +81,29 @@ const table = useVueTable({
   },
   getRowId: (row: any) => row.id,
   meta: {
-    deleteTask: (id: string) => {
-      draggableData.value = draggableData.value.filter((t: any) => t.id !== id)
+    deleteTask: async (id: string) => {
+      try {
+        await ky.delete(`${SERVER_URL}/api/todos/${id}`)
+        draggableData.value = draggableData.value.filter((t: any) => t.id !== id)
+      } catch (err) {
+        console.error("删除失败", err)
+        toast.error('删除失败', {
+          position: 'bottom-right'
+        })
+      }
     },
-    updateStatus: (id: string, status: 'todo' | 'done') => {
-      draggableData.value = draggableData.value.map((t: any) => 
-        t.id === id ? { ...t, status } : t
-      )
+    updateStatus: async (id: string, status: 'todo' | 'done') => {
+      try {
+        await ky.put(`${SERVER_URL}/api/todos/${id}`, {
+          json: { status }
+        })
+        draggableData.value = draggableData.value.map((t: any) => t.id === id ? { ...t, status } : t)
+      } catch (err) {
+        console.error("更改状态失败", err)
+        toast.error('更改状态失败', {
+          position: 'bottom-right'
+        })
+      }
     }
   }
 })
