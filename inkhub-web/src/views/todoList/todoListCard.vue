@@ -9,7 +9,7 @@
                 <div class="column-card">
                     <div class="column-header">To Do</div>
                     <div class="task-list">
-                        <div v-for="(task, taskIndex) in tasks.filter(t => t.status === 'todo')" :key="task.id"
+                        <div v-for="(task, taskIndex) in tasks.filter(t => t.status === 'todo').slice(0, 7)" :key="task.id"
                             class="task-item">
                             <span class="task-num">{{ taskIndex + 1 }} .</span>
                             {{ task.task }}
@@ -20,7 +20,7 @@
                 <div class="column-card">
                     <div class="column-header">Done</div>
                     <div class="task-list">
-                        <div v-for="(task, taskIndex) in tasks.filter(t => t.status === 'done')" :key="task.id"
+                        <div v-for="(task, taskIndex) in tasks.filter(t => t.status === 'done').slice(0, 7)" :key="task.id"
                             class="task-item-done">
                             <span class="task-num">{{ taskIndex + 1 }} .</span>
                             {{ task.task }}

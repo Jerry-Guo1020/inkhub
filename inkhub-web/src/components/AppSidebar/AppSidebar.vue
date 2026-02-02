@@ -24,8 +24,8 @@ const items = [
     icon: Calendar,
   },
   {
-    title: 'Calendar',
-    url: '#',
+    title: '天气管理',
+    url: '/weather',
     icon: Inbox,
   },
   {
