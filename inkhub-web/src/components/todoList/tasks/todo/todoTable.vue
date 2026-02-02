@@ -144,6 +144,9 @@ const table = useVueTable({
         console.log(`当前的id是: ${id}`)
         await ky.delete(`${SERVER_URL}/api/todos/${id}`)
         draggableData.value = draggableData.value.filter((t: any) => t.id !== id)
+        toast.success('删除成功', {
+          position: 'bottom-right'
+        })
       } catch (err) {
         console.error("删除失败", err)
         toast.error('删除失败', {
@@ -157,6 +160,9 @@ const table = useVueTable({
           json: { status }
         })
         draggableData.value = draggableData.value.map((t: any) => t.id === id ? { ...t, status } : t)
+        toast.success('更改状态成功', {
+          position: 'bottom-right'
+        })
       } catch (err) {
         console.error("更改状态失败", err)
         toast.error('更改状态失败', {
