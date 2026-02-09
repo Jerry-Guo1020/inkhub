@@ -1,10 +1,70 @@
+<template>
+  <div class="w-full">
+    <div class="flex items-center py-4">
+      <Input class="max-w-sm" placeholder="请输入您需要搜索的内容"
+        :model-value="table.getColumn('task')?.getFilterValue() as string"
+        @update:model-value="table.getColumn('task')?.setFilterValue($event)" />
+
+      <DropdownMenu>
+        <DropdownMenuTrigger as-child>
+          <Button variant="outline" class="ml-auto">
+            更多
+            <ChevronDown class="w-4 h-4 ml-2" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuCheckboxItem v-for="column in table.getAllColumns().filter((column) => column.getCanHide())"
+            :key="column.id" class="capitalize " :modelValue="column.getIsVisible()"
+            @update:modelValue="(value) => column.toggleVisibility(!!value)">
+            {{ column.id }}
+          </DropdownMenuCheckboxItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+
+    <div class="border rounded-md text-center">
+      <Table>
+        <TableHeader>
+          <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
+
+            <TableHead v-for="header in headerGroup.headers" :key="header.id" class="text-center">
+              <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
+                :props="header.getContext()" />
+
+            </TableHead>
+
+          </TableRow>
+
+        </TableHeader>
+        <VueDraggableNext v-model="draggableData" tag="tbody">
+
+          <TableRow v-for="task in draggableData" :key="(task as any).id" class="cursor-move"
+            :data-state="rowMap.get((task as any).id)?.getIsSelected() ? 'selected' : undefined">
+            <TableCell v-for="cell in rowMap.get((task as any).id)?.getVisibleCells()" :key="cell.id"
+              class="text-center">
+              <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+            </TableCell>
+          </TableRow>
+        </VueDraggableNext>
+        <TableBody v-if="!table.getRowModel().rows?.length">
+          <TableRow>
+            <TableCell :colspan="columns.length" class="h-24 text-center">
+              No results.
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts" generic="TData, TValue">
 import { ref, computed } from 'vue'
-import type { 
-  ColumnDef, 
-  SortingState, 
-  ColumnFiltersState, 
-  VisibilityState 
+import type {
+  ColumnDef,
+  SortingState,
+  ColumnFiltersState,
+  VisibilityState
 } from '@tanstack/vue-table'
 import {
   FlexRender,
@@ -29,6 +89,10 @@ import {
 import {
   DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+
+import ky from 'ky'
+import { SERVER_URL } from '@/config/config'
+import { toast } from 'vue-sonner'
 
 // 接收父组件传来的数据
 const props = defineProps<{
@@ -59,13 +123,13 @@ const table = useVueTable({
   getPaginationRowModel: getPaginationRowModel(), // 分页逻辑
   getSortedRowModel: getSortedRowModel(), // 排序逻辑
   getFilteredRowModel: getFilteredRowModel(), // 过滤逻辑
-  
+
   // 绑定状态更新函数
   onSortingChange: updaterOrValue => valueUpdater(updaterOrValue, sorting),
   onColumnFiltersChange: updaterOrValue => valueUpdater(updaterOrValue, columnFilters),
   onColumnVisibilityChange: updaterOrValue => valueUpdater(updaterOrValue, columnVisibility),
   onRowSelectionChange: updaterOrValue => valueUpdater(updaterOrValue, rowSelection),
-  
+
   // 暴露状态给表格内部使用
   state: {
     get sorting() { return sorting.value },
@@ -75,13 +139,36 @@ const table = useVueTable({
   },
   getRowId: (row: any) => row.id,
   meta: {
-    deleteTask: (id: string) => {
-      draggableData.value = draggableData.value.filter((t: any) => t.id !== id)
+    deleteTask: async (id: string) => {
+      try {
+        console.log(`当前的id是: ${id}`)
+        await ky.delete(`${SERVER_URL}/api/todos/${id}`)
+        draggableData.value = draggableData.value.filter((t: any) => t.id !== id)
+        toast.success('删除成功', {
+          position: 'bottom-right'
+        })
+      } catch (err) {
+        console.error("删除失败", err)
+        toast.error('删除失败', {
+          position: 'bottom-right'
+        })
+      }
     },
-    updateStatus: (id: string, status: 'todo' | 'done') => {
-      draggableData.value = draggableData.value.map((t: any) => 
-        t.id === id ? { ...t, status } : t
-      )
+    updateStatus: async (id: string, status: 'todo' | 'done') => {
+      try {
+        await ky.put(`${SERVER_URL}/api/todos/${id}`, {
+          json: { status }
+        })
+        draggableData.value = draggableData.value.map((t: any) => t.id === id ? { ...t, status } : t)
+        toast.success('更改状态成功', {
+          position: 'bottom-right'
+        })
+      } catch (err) {
+        console.error("更改状态失败", err)
+        toast.error('更改状态失败', {
+          position: 'bottom-right'
+        })
+      }
     }
   }
 })
@@ -94,78 +181,3 @@ const rowMap = computed(() => {
   return map
 })
 </script>
-
-<template>
-  <div class="w-full">
-    <div class="flex items-center py-4">
-      <Input 
-        class="max-w-sm" 
-        placeholder="请输入您需要搜索的内容"
-        :model-value="table.getColumn('task')?.getFilterValue() as string"
-        @update:model-value="table.getColumn('task')?.setFilterValue($event)" 
-      />
-      
-      <DropdownMenu>
-        <DropdownMenuTrigger as-child>
-          <Button variant="outline" class="ml-auto">
-            更多 <ChevronDown class="w-4 h-4 ml-2" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuCheckboxItem
-            v-for="column in table.getAllColumns().filter((column) => column.getCanHide())"
-            :key="column.id"
-            class="capitalize "
-            :modelValue="column.getIsVisible()"
-            @update:modelValue="(value) => column.toggleVisibility(!!value)"
-          >
-            {{ column.id }}
-          </DropdownMenuCheckboxItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-
-    <div class="border rounded-md text-center">
-      <Table>
-        <TableHeader>
-          <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
-            
-            <TableHead v-for="header in headerGroup.headers" :key="header.id" class="text-center">
-              <FlexRender 
-                v-if="!header.isPlaceholder" 
-                :render="header.column.columnDef.header"
-                :props="header.getContext()" 
-              />
-              
-            </TableHead>
-            
-          </TableRow>
-          
-        </TableHeader>
-        <VueDraggableNext
-          v-model="draggableData"
-          tag="tbody"
-        >
-        
-          <TableRow
-            v-for="task in draggableData"
-            :key="(task as any).id"
-            class="cursor-move"
-            :data-state="rowMap.get((task as any).id)?.getIsSelected() ? 'selected' : undefined"
-          >
-            <TableCell v-for="cell in rowMap.get((task as any).id)?.getVisibleCells()" :key="cell.id" class="text-center">
-              <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-            </TableCell>
-          </TableRow>
-        </VueDraggableNext>
-        <TableBody v-if="!table.getRowModel().rows?.length">
-          <TableRow>
-            <TableCell :colspan="columns.length" class="h-24 text-center">
-              No results.
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </div>
-  </div>
-</template>
