@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
 import AppSidebar from '@/components/AppSidebar/AppSidebar.vue'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/sonner'
 import 'vue-sonner/style.css'
+<<<<<<< HEAD
 import { SERVER_URL } from "./config/config"
 import ky from 'ky'
 import { isHTTPError } from 'ky';
@@ -68,6 +68,8 @@ const checkConnection = async() => {
 onMounted(() => {
   checkConnection()
 })
+=======
+>>>>>>> web
 
 </script>
 
