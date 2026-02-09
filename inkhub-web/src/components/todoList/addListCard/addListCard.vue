@@ -45,12 +45,6 @@ const { handleSubmit, resetForm } = useForm({
 const onSubmit = handleSubmit((data) => {
   // 触发自定义事件，传递任务数据
   emit('add-task', { title: data.description })
-  
-  // 可选：显示成功提示
-  toast.success('任务添加成功！', {
-    description: `已添加任务: ${data.description}`,
-    position: 'bottom-right',
-  })
   // 重置表单
   resetForm()
 })

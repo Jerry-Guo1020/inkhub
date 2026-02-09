@@ -9,7 +9,8 @@
                 <div class="column-card">
                     <div class="column-header">To Do</div>
                     <div class="task-list">
-                        <div v-for="(task, taskIndex) in tasks.filter(t => t.status === 'todo')" :key="task.id" class="task-item">
+                        <div v-for="(task, taskIndex) in tasks.filter(t => t.status === 'todo').slice(0, 7)" :key="task.id"
+                            class="task-item">
                             <span class="task-num">{{ taskIndex + 1 }} .</span>
                             {{ task.task }}
                         </div>
@@ -19,7 +20,8 @@
                 <div class="column-card">
                     <div class="column-header">Done</div>
                     <div class="task-list">
-                        <div v-for="(task, taskIndex) in tasks.filter(t => t.status === 'done')" :key="task.id" class="task-item-done">
+                        <div v-for="(task, taskIndex) in tasks.filter(t => t.status === 'done').slice(0, 7)" :key="task.id"
+                            class="task-item-done">
                             <span class="task-num">{{ taskIndex + 1 }} .</span>
                             {{ task.task }}
                         </div>
@@ -56,6 +58,9 @@ import html2canvas from 'html2canvas'
 import { toast } from 'vue-sonner'
 import { reactive, ref } from 'vue';
 import AllDataTable from '@/components/todoList/dataTable/allDataTable.vue';
+import ky from 'ky'
+import { SERVER_URL } from '@/config/config';
+import { onMounted } from 'vue'
 
 // 状态管理
 const isGenerating = ref(false);
@@ -65,12 +70,21 @@ const isModalOpen = ref(false); // 控制弹窗显示
 const canvas = ref(null)
 
 // 统一的任务列表
-const tasks = ref([
-    { id: '1', task: '完成项目报告', status: 'todo' },
-    { id: '2', task: '准备周会演示', status: 'todo' },
-    { id: '3', task: '回复客户邮件', status: 'done' },
-    { id: '4', task: '修复 Bug #123', status: 'done' },
-])
+const tasks = ref([])
+
+// 从后端获取所有的任务
+const fetchTasks = async () => {
+    try {
+        const data = await ky.get(`${SERVER_URL}/api/todos`).json()
+        tasks.value = data
+    } catch (err) {
+        console.error("出现了错误", err);
+        toast.error('获取任务失败！', {
+            description: err,
+            position: 'bottom-right',
+        })
+    }
+}
 
 // 实行导出为照片的任务
 
@@ -79,9 +93,37 @@ const handleAddTask = () => {
     isModalOpen.value = true;
 };
 
-const addTask = (taskData) => {
-    tasks.value.push({ id: String(Date.now()), task: taskData.title, status: 'todo' });
-    isModalOpen.value = false;
+// 添加任务的逻辑
+const addTask = async (taskData) => {
+    try {
+        // 首先先发出一个请求到后端进行保存
+        console.log("准备添加任务")
+        const newTask = await ky.post(`${SERVER_URL}/api/todos`, {
+            json: { task: taskData.title }
+        }).json()
+
+        // 后端保存成功之后,把返回的新任务同时带上id的形式放到前端列表
+        tasks.value.push(newTask)
+
+        // 关闭弹窗
+        isModalOpen.value = false;
+        toast.success("添加成功", {
+            description: `已添加任务: ${taskData.title}`,
+            position: 'bottom-right',
+        })
+    } catch (err) {
+        toast.error("添加失败", {
+            description: `添加任务${taskData.title}失败!`,
+            position: 'bottom-right',
+        })
+        console.error("添加失败", err)
+        if (err.response) {
+            const errorBody = await err.response.json().catch(() => {
+                ({})
+                console.log("后端返回错误", errorBody)
+            })
+        }
+    }
 };
 
 const closeModal = () => {
@@ -127,6 +169,10 @@ const handleExportImage = async () => {
     }
 
 }
+
+onMounted(() => {
+    fetchTasks()
+})
 
 </script>
 
