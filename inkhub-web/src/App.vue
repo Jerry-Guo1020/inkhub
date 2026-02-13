@@ -6,6 +6,7 @@ import 'vue-sonner/style.css'
 import { SERVER_URL } from "./config/config"
 import { ref } from 'vue'
 import ky from 'ky'
+import { onMounted } from 'vue'
 
 const isConnected = ref(false)
 const isLoading = ref(true)
