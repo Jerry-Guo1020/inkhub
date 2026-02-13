@@ -3,8 +3,8 @@ import AppSidebar from '@/components/AppSidebar/AppSidebar.vue'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/sonner'
 import 'vue-sonner/style.css'
-<<<<<<< HEAD
 import { SERVER_URL } from "./config/config"
+import { ref } from 'vue'
 import ky from 'ky'
 
 const isConnected = ref(false)
@@ -67,8 +67,6 @@ const checkConnection = async() => {
 onMounted(() => {
   checkConnection()
 })
-=======
->>>>>>> web
 
 </script>
 
